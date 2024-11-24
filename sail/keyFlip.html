@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flip SVG Horizontally</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    svg {
+      width: 200px;
+      height: auto;
+      transition: transform 0.3s ease; /* Smooth flipping effect */
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG Element -->
+  <svg id="mySvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="40" fill="blue" />
+    <rect x="10" y="30" width="40" height="10" fill="yellow" />
+  </svg>
+
+  <script>
+    const svgElement = document.getElementById('mySvg');
+    let flipped = false; // Track flip state
+
+    // Listen for keydown event
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'f') { // Flip when the "f" key is pressed
+        flipped = !flipped; // Toggle the flip state
+        svgElement.style.transform = flipped ? 'scaleX(-1)' : 'scaleX(1)';
+      }
+    });
+  </script>
+</body>
+</html>

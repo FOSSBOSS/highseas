@@ -1,63 +1,44 @@
 #include <Keyboard.h>
 #include <Bounce2.h>
 
-#define left_mic 0
-#define rght_mic 1
-#define fwd_mic  2
+// Define IO Pins
+#define aleft  0  // left key
+#define arght  2  // right key
+#define afwd   1  // forward key
+#define aRFWD  3  // forward-right key
+#define aLFWD  4  // forward-left key
+#define arota  5  // right rotate key
+#define arset  6  // reset position
+#define azmin  7  // zoom in
+#define azout  8  // zoom out
+#define alrota 9  // left rotate
+#define azmax  10 // zoom out
 
 // Create Bounce objects for buttons
 Bounce left = Bounce();
 Bounce rght = Bounce();
 Bounce fwd = Bounce();
+Bounce RFWD = Bounce();
+Bounce LFWD = Bounce();
+Bounce rota = Bounce();
+Bounce rset = Bounce();
+Bounce zmin = Bounce();
+Bounce zout = Bounce();
+Bounce lrota = Bounce();
+Bounce zmax = Bounce();
 
 void setup() {
 
   Serial.begin(19200);
- // delay(3000);
-pinMode(0, INPUT_PULLUP);
-pinMode(1, INPUT_PULLUP);
-pinMode(2, INPUT_PULLUP);
+  delay(3000);
 
- int bounceTime = 1;
-  // Attach buttons to Bounce objects and set debounce interval
-  left.attach(left_mic, INPUT_PULLUP);
-  left.interval(bounceTime);
-
-  rght.attach(rght_mic, INPUT_PULLUP);
-  rght.interval(bounceTime);
-
-  fwd.attach(fwd_mic, INPUT_PULLUP);
-  fwd.interval(bounceTime);
-Keyboard.begin();
+  Keyboard.begin();
 }
 
 void loop() {
   left.update();
   rght.update();
   fwd.update();
-
-  // Handle button presses with debouncing
-  if (left.fell()) {
-    Serial.println("LEFT");
-    Keyboard.press(KEY_LEFT);
-    Keyboard.release(KEY_LEFT);
-  }
-  if (rght.fell()) {
-    Serial.println("Riiight");
-    Keyboard.press(KEY_RIGHT);
-    Keyboard.release(KEY_RIGHT);
-  }
-  if (fwd.fell()) {
-    Serial.println("Forward!");
-    Keyboard.press(KEY_UP_ARROW);
-    Keyboard.release(KEY_UP_ARROW);
- 
-  }  
-
-}
-/*
-  
-  
   RFWD.update();
   LFWD.update();
   rota.update();
@@ -67,7 +48,18 @@ void loop() {
   zmax.update();
   lrota.update();
 
-
+  // Handle button presses with debouncing
+  if (left.fell()) {
+    Serial.println("LEFT");
+    Keyboard.press(KEY_LEFT);
+    Keyboard.release(KEY_LEFT);
+  }
+  if (rght.fell()) {
+    Keyboard.press(KEY_LEFT_SHIFT);
+    Keyboard.press(KEY_RIGHT);
+    Keyboard.release(KEY_RIGHT);
+    Keyboard.release(KEY_LEFT_SHIFT);
+  }
   if (RFWD.fell()) {
     Keyboard.press(KEY_LEFT_SHIFT);
     Keyboard.press(KEY_R);
@@ -102,8 +94,7 @@ void loop() {
     Keyboard.press(KEY_R);
     Keyboard.release(KEY_R);
   }
-*/
-
+}
 
 
   /*

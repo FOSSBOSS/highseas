@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sailboat Control</title>
+  <style>
+    /* Optional styling to center the SVG */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 100;
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG sailboat structure -->
+  <svg width="500" height="500">
+    <path id="sail" d="M 0 150 Q 100 100, 150 150" stroke="black" fill="none"/>
+    <path id="sail" d="M 150 -50 Q 100 -100, 150 -150" stroke="black" fill="none"/>
+  </svg>
+
+  <!-- JavaScript for arrow key control -->
+  <script>
+    document.addEventListener('keydown', (event) => {
+      let direction;
+      if (event.key === 'ArrowUp') {
+        direction = 'up';
+      } else if (event.key === 'ArrowDown') {
+        direction = 'down';
+      } else if (event.key === 'ArrowLeft') {
+        direction = 'left';
+      } else if (event.key === 'ArrowRight') {
+        direction = 'right';
+      }
+
+      if (direction) {
+        adjustSailCurve(direction);
+      }
+    });
+
+    function adjustSailCurve(direction) {
+      const sailPath = document.getElementById('sail');
+      let controlX = 100; // Initial horizontal control point
+      let controlY = 100; // Initial vertical control point
+
+      // Adjust the control point based on the arrow key direction
+      switch (direction) {
+        case 'up':
+          controlY -= 20; // Curve more upward
+          break;
+        case 'down':
+          controlY += 20; // Curve more downward
+          break;
+        case 'left':
+          controlX -= 50; // Curve more to the left
+          break;
+        case 'right':
+          controlX += 50; // Curve more to the right
+          break;
+      }
+
+      // Set new curve path based on adjusted control points
+      sailPath.setAttribute('d', `M 0 150 Q ${controlX} ${controlY}, 150 150`);
+      sailPath.setAttribute('d', `M 0 -150  Q ${controlX} ${controlY}, 150 150`);
+        
+    }
+  </script>
+</body>
+</html>

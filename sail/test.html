@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Sailboat</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <svg width="800" height="800" viewBox="0 0 800 800">
+    <!-- Path of the sail -->
+    <path id="sail" d="M 400 500 Q 450 450, 500 500" stroke="black" fill="none" />
+
+    <!-- Boat -->
+    <g id="boat" transform="translate(400, 500)">
+      <!-- Replace this rectangle with your boat SVG -->
+      <rect width="40" height="20" x="-20" y="-10" fill="blue" />
+    </g>
+  </svg>
+
+  <script>
+    // Parameters for the sail's curve
+    let controlX = 450;
+    let controlY = 450;
+
+    // Elements
+    const sail = document.getElementById('sail');
+    const boat = document.getElementById('boat');
+
+    // Function to update the sail curve
+    function updateCurve() {
+      const pathData = `M 400 500 Q ${controlX} ${controlY}, 500 500`;
+      sail.setAttribute('d', pathData);
+
+      // Update the boat's position and rotation
+      updateBoatPosition();
+    }
+
+    // Function to update the boat's position based on the sail curve
+    function updateBoatPosition() {
+      // Midpoint of the curve
+      const midX = (400 + 2 * controlX + 500) / 4;
+      const midY = (500 + 2 * controlY + 500) / 4;
+
+      // Angle of the tangent line at the midpoint
+      const dx = controlX - 400; // X difference
+      const dy = controlY - 500; // Y difference
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+      // Transform the boat to follow the curve
+      const transform = `translate(${midX}, ${midY}) rotate(${angle})`;
+      boat.setAttribute('transform', transform);
+    }
+
+    // Keydown event listener for controlling the sail curve
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+          controlY -= 10;
+          break;
+        case 'ArrowDown':
+          controlY += 10;
+          break;
+        case 'ArrowLeft':
+          controlX -= 10;
+          break;
+        case 'ArrowRight':
+          controlX += 10;
+          break;
+        default:
+          return; // Ignore other keys
+      }
+
+      // Update the sail curve
+      updateCurve();
+    });
+
+    // Initial render
+    updateCurve();
+  </script>
+</body>
+</html>
