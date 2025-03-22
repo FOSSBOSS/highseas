@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TUG-0-WAR!!</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #wave-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+    }
+
+    .game-container {
+      position: relative;
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: lightblue;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
     }
-    .game-container {
-      position: relative;
-      width: 80vw;
-      height: 60vh;
-      overflow: hidden;
-      background-color: lightblue;
-    }
+
     #boat {
       position: absolute;
       width: 100px;
@@ -32,7 +40,9 @@
       left: 50%;
       transform: translate(-50%, -50%);
       transition: left 0.1s linear;
+      z-index: 2;
     }
+
     #message {
       position: absolute;
       top: 50%;
@@ -45,16 +55,16 @@
       padding: 20px;
       border-radius: 10px;
       display: none;
+      z-index: 3;
     }
   </style>
 </head>
 <body>
-  <div class="game-container">
-    <img id="boat" src="boat.svg" alt="Boat">
-    <div id="message"></div>
-  <svg viewBox="0 0 1440 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+
+  <!-- Background Waves -->
+  <svg id="wave-bg" viewBox="0 0 1440 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
     <!-- Wave 1 -->
-    <path id="wave1" d="M0,300 Q360,400 720,300 T1440,300 V600 H0 Z" fill="rgba(0, 150, 255, 0.4)">
+    <path d="M0,300 Q360,400 720,300 T1440,300 V600 H0 Z" fill="rgba(0, 150, 255, 0.4)">
       <animate attributeName="d" dur="5s" repeatCount="indefinite" values="
         M0,300 Q360,400 720,300 T1440,300 V600 H0 Z;
         M0,280 Q360,380 720,320 T1440,280 V600 H0 Z;
@@ -63,7 +73,7 @@
     </path>
 
     <!-- Wave 2 -->
-    <path id="wave2" d="M0,320 Q360,420 720,320 T1440,320 V600 H0 Z" fill="rgba(0, 120, 220, 0.5)">
+    <path d="M0,320 Q360,420 720,320 T1440,320 V600 H0 Z" fill="rgba(0, 120, 220, 0.5)">
       <animate attributeName="d" dur="7s" repeatCount="indefinite" values="
         M0,320 Q360,420 720,320 T1440,320 V600 H0 Z;
         M0,340 Q360,440 720,300 T1440,340 V600 H0 Z;
@@ -72,7 +82,7 @@
     </path>
 
     <!-- Wave 3 -->
-    <path id="wave3" d="M0,340 Q360,440 720,340 T1440,340 V600 H0 Z" fill="rgba(0, 100, 200, 0.3)">
+    <path d="M0,340 Q360,440 720,340 T1440,340 V600 H0 Z" fill="rgba(0, 100, 200, 0.3)">
       <animate attributeName="d" dur="9s" repeatCount="indefinite" values="
         M0,340 Q360,440 720,340 T1440,340 V600 H0 Z;
         M0,360 Q360,460 720,320 T1440,360 V600 H0 Z;
@@ -80,20 +90,28 @@
       " />
     </path>
   </svg>
+
+  <!-- Game Area -->
+  <div class="game-container">
+    <img id="boat" src="boat.svg" alt="Boat">
+    <div id="message"></div>
   </div>
+
   <script>
-    let boat = document.getElementById("boat");
-    let message = document.getElementById("message");
-    let boatPos = 50;
+    const boat = document.getElementById("boat");
+    const message = document.getElementById("message");
+
+    let boatPos = 50; // % left
     let gameRunning = true;
     let port;
 
     function updateBoatPosition(A, B) {
       if (!gameRunning) return;
-      let diff = A - B;
-      boatPos += diff * 0.5;
+      const diff = A - B;
+      boatPos += diff * 0.3; // scale factor
       boatPos = Math.max(0, Math.min(100, boatPos));
       boat.style.left = boatPos + "%";
+
       if (boatPos === 0) {
         declareWinner("A Wins!");
       } else if (boatPos === 100) {
@@ -110,71 +128,64 @@
         boatPos = 50;
         boat.style.left = "50%";
         gameRunning = true;
-      }, 2000);
+      }, 2000); // time to show Winner
     }
 
+    // Serial Connection
+    let isConnected = false;
 
-
-let reader;
-let isConnected = false;
-
-async function connectSerial() {
-    try {
+    async function connectSerial() {
+      try {
         if (isConnected) {
-            console.warn("Already connected.");
-            return;
+          console.warn("Already connected.");
+          return;
         }
-        // heck yeah AI helped me write this in one hour
-        console.log("🔌 Requesting Serial Port...");
+
+        console.log("Requesting Serial Port...");
         port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 19200 });  // <-- match baud of arduino lol
+        await port.open({ baudRate: 19200 });
 
         console.log("✅ Port Opened!");
 
         const textDecoder = new TextDecoderStream();
-        const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+        port.readable.pipeTo(textDecoder.writable);
         const inputStream = textDecoder.readable.getReader();
 
         isConnected = true;
         console.log("📡 Waiting for Data...");
 
         while (true) {
-            const { value, done } = await inputStream.read();
-            if (done) {
-                console.warn("❌ Serial Stream Closed.");
-                break;
-            }
-            if (value) {
-                console.log(`📥 Received: "${value.trim()}"`);
-                processSerialData(value.trim());
-            }
+          const { value, done } = await inputStream.read();
+          if (done) {
+            console.warn("❌ Serial Stream Closed.");
+            break;
+          }
+          if (value) {
+            console.log(`📥 Received: "${value.trim()}"`);
+            processSerialData(value.trim());
+          }
         }
 
         inputStream.releaseLock();
-    } catch (err) {
+      } catch (err) {
         console.error("Serial Connection Error:", err);
         isConnected = false;
+      }
     }
-}
 
-
-
-function processSerialData(data) {
-    console.log("Raw Serial Data:", data); 
-
-    let match = data.match(/A:(\d+), B:(\d+)/);
-    if (match) {
-        let A = parseInt(match[1]);
-        let B = parseInt(match[2]);
-        console.log(`Parsed A: ${A}, B: ${B}`); 
+    function processSerialData(data) {
+      const match = data.match(/A:(\d+), B:(\d+)/);
+      if (match) {
+        const A = parseInt(match[1]);
+        const B = parseInt(match[2]);
         updateBoatPosition(A, B);
-    } else {
+      } else {
         console.warn("Invalid Serial Data:", data);
+      }
     }
-}
 
+    // Click anywhere to connect to serial
     document.body.addEventListener("click", connectSerial);
   </script>
 </body>
 </html>
-
