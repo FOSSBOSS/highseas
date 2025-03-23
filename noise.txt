@@ -1,0 +1,74 @@
+ok initial testing went great, but in deployment, the total amount of ambient noise was not something I was prepared to deal with.
+I did try some things, like limiting the range of sensor output to 1,0s, and conditional output, and adding an averaging function to the 
+main loop. These proved ineffective over time, with a wide range of faults. its noisey in the room, its especialy noisy over here, or over there. ...
+or its quiet durring init, but unfathomably noisy an hour later.
+
+So I learned a new word:
+
+Least Mean Square (LMS) algorithm, a common adaptive filtering technique, can be used for noise cancellation.
+
+So Im going to try that.
+The goal is still it init the project one time, and let it run indefinetly. 
+
+ LMS General formula: w(n+1) = w(n) + u * e(n) * x(n) 
+
+Where w(n) = the vector of filtration at a given time n.
+         u = a step size parameter for reaction time "learning rate"
+      e(n) = error aka noise at time n: an error diffential... hey I was trying that! 
+      x(n) = input at a given time.
+
+I'll have to learn more about the AI of this model, and how to use ambient noise a training data.
+
+Here is some C sample code:
+I'll have to see how this runs on an arduino.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the number of filter taps (coefficients)
+#define FILTER_LENGTH 10
+
+// Define the step size parameter
+#define STEP_SIZE 0.01
+
+int main() {
+    // Input and desired signals (replace with your actual data)
+    double noisy_signal[100]; // Example: 100 samples
+    double desired_signal[100]; // Example: 100 samples
+
+    // Initialize filter coefficients (can be random or zero)
+    double filter_coefficients[FILTER_LENGTH];
+    for (int i = 0; i < FILTER_LENGTH; i++) {
+        filter_coefficients[i] = 0.0; // Initialize to zero
+    }
+
+    // LMS algorithm loop
+    for (int n = 0; n < 100; n++) { // Process 100 samples
+        // 1. Calculate the filtered output
+        double filtered_output = 0.0;
+        for (int i = 0; i < FILTER_LENGTH; i++) {
+            if (n - i >= 0) { // Check for valid indices
+                filtered_output += filter_coefficients[i] * noisy_signal[n - i];
+            }
+        }
+
+        // 2. Calculate the error
+        double error = desired_signal[n] - filtered_output;
+
+        // 3. Update the filter coefficients
+        for (int i = 0; i < FILTER_LENGTH; i++) {
+            if (n - i >= 0) { // Check for valid indices
+                filter_coefficients[i] += STEP_SIZE * error * noisy_signal[n - i];
+            }
+        }
+
+        // Optional: Print or store the filtered output and error for analysis
+        // printf("Sample %d: Error = %f, Filtered Output = %f\n", n, error, filtered_output);
+    }
+
+    // Use the updated filter coefficients for noise cancellation
+    // ...
+
+    return 0;
+}
