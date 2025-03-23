@@ -3,6 +3,10 @@ I did try some things, like limiting the range of sensor output to 1,0s, and con
 main loop. These proved ineffective over time, with a wide range of faults. its noisey in the room, its especialy noisy over here, or over there. ...
 or its quiet durring init, but unfathomably noisy an hour later.
 
+What I avoided doing was limiting the sensor feedback response time, as this results in a percievable change in performance. 
+as in: i blew on the sensor, and it didnt respond. I saw some kids litteraly put those electronics in thier mouth, and gargle with it, like some sort of weird water fountian. 
+GROSS. LOL. might want to build a better enclosure...
+
 So I learned a new word:
 
 Least Mean Square (LMS) algorithm, a common adaptive filtering technique, can be used for noise cancellation.
